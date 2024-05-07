@@ -28,18 +28,18 @@ steps:
       sudo pip install flask
       sudo pip install tabulate
       sudo pip install datetime
-- task: GitHubRelease@1
+- task: DownloadGitHubRelease@0
   inputs:
-    gitHubConnection: 'github.com_darksaber8888'
-    repositoryName: 'darksaber8888/timtableapp'
-    action: 'create'
-    target: '$(Build.SourceVersion)'
-    tagSource: 'gitTag'
-    tagPattern: 'v1'
-    title: 'latest'
-    isDraft: true
-    changeLogCompareToRelease: 'lastFullRelease'
-    changeLogType: 'commitBased'
+    connection: 'github.com_darksaber8888'
+    userRepository: 'darksaber8888/timtableapp'
+    defaultVersionType: 'latest'
+    downloadPath: '$(System.ArtifactsDirectory)'
+
+- task: CmdLine@2
+  inputs:
+    script: |
+      pwd
+      ls -la
 
 # Step 4: Build Docker image
 - script: |
@@ -48,7 +48,7 @@ steps:
 
 - task: SnykSecurityScan@1
   inputs:
-    serviceConnectionEndpoint: 'snyk_sc'
+    serviceConnection: 'snyk_sc'
     testType: 'container'
     dockerImageName: 'timetable.app'
     dockerfilePath: '*/Dockerfile'

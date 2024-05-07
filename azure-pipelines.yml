@@ -41,6 +41,7 @@ steps:
     script: |
       pwd
       ls -la
+      cd timetable
 
 # Step 4: Build Docker image
 - script: |

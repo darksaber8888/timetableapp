@@ -41,10 +41,10 @@ steps:
     script: |
       pwd
       ls -la
-      cd timetable
-
+      
 # Step 4: Build Docker image
 - script: |
+    cd timetable
     sudo docker build -t timetable.app .
   displayName: 'Build Docker image'
 

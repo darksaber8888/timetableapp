@@ -1,0 +1,68 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: |
+    mkdir timetable
+    cd timetable
+  displayName: 'Create and change to working directory'
+
+- checkout: self
+  displayName: 'Checkout code from GitHub'
+
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+    addToPath: true
+  displayName: 'Use Python 3.x'
+
+- script: |
+    pip install flask tabulate
+  displayName: 'Install Python dependencies'
+
+- script: |
+    sudo apt-get update
+    sudo apt-get install -y docker.io
+  displayName: 'Install Docker'
+
+- script: |
+    docker build -t dockerimage/v1 .
+  displayName: 'Build Docker image'
+
+- task: SnykSecurityScan@1
+  inputs:
+    serviceConnectionEndpoint: 'snyk_sc'
+    testType: 'container'
+    dockerImageName: 'darksaber8888/timetable.app'
+    dockerfilePath: 'Dockerfile'
+    monitorWhen: 'always'
+    failOnIssues: true
+
+- script: |
+    docker run --rm dockerimage/v1 snyk test --all-projects > results.txt
+  displayName: 'Save Snyk scan results to results.txt'
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: 'results.txt'
+    artifactName: 'scan-results'
+  displayName: 'Publish scan results as pipeline artifact'
+  
+- task: Docker@2
+  inputs:
+    containerRegistry: 'docker_sc'
+    repository: 'darksaber8888/timetable.app'
+    command: 'push'
+
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerimage/v1'
+    command: 'run'
+    arguments: '-v $(Build.SourcesDirectory):/mnt dockerimage/v1 snyk test --all-projects'
+  displayName: 'Run Snyk scan on Docker image'
+
+
+

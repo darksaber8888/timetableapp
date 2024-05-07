@@ -32,7 +32,8 @@ steps:
   inputs:
     connection: 'github.com_darksaber8888'
     userRepository: 'darksaber8888/timtableapp'
-    defaultVersionType: 'latest'
+    defaultVersionType: 'specificTag'
+    version: 'v1.0'
     downloadPath: '$(System.ArtifactsDirectory)'
 
 - task: CmdLine@2

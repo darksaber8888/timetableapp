@@ -5,64 +5,60 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: |
-    mkdir timetable
-    cd timetable
-  displayName: 'Create and change to working directory'
-
-- checkout: self
-  displayName: 'Checkout code from GitHub'
-
-- task: UsePythonVersion@0
+- task: PowerShell@2
   inputs:
-    versionSpec: '3.x'
-    addToPath: true
-  displayName: 'Use Python 3.x'
+    targetType: 'inline'
+    script: |
+      # Step 1: Create working directory and change directory
+      mkdir timetable
+      cd timetable
 
-- script: |
-    pip install flask tabulate
-  displayName: 'Install Python dependencies'
+- task: GitHubRelease@1
+  inputs:
+    gitHubConnection: 'github.com_darksaber8888'
+    repositoryName: 'darksaber8888/timtableapp'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'gitTag'
+    tagPattern: 'v1'
+    title: 'latest'
+    isDraft: true
+    changeLogCompareToRelease: 'lastFullRelease'
+    changeLogType: 'commitBased'
 
+# Step 3: Download dependencies
 - script: |
     sudo apt-get update
+    sudo apt-get install -y python3 python3-pip
+    pip3 install flask tabulate
     sudo apt-get install -y docker.io
-  displayName: 'Install Docker'
+  displayName: 'Install dependencies'
 
+# Step 4: Build Docker image
 - script: |
-    docker build -t dockerimage/v1 .
+    docker build -t timetable.app .
   displayName: 'Build Docker image'
 
 - task: SnykSecurityScan@1
   inputs:
     serviceConnectionEndpoint: 'snyk_sc'
     testType: 'container'
-    dockerImageName: 'darksaber8888/timetable.app'
-    dockerfilePath: 'Dockerfile'
+    dockerImageName: 'timetable.app'
+    dockerfilePath: '*/Dockerfile'
+    severityThreshold: 'critical'
     monitorWhen: 'always'
     failOnIssues: true
+    projectName: 'darksaber8888/timetable.app'
+    organization: '78dbe9ea-e211-46bd-8621-0e14db09a67c'
 
+# Step 6: Run container image scan
 - script: |
-    docker run --rm dockerimage/v1 snyk test --all-projects > results.txt
-  displayName: 'Save Snyk scan results to results.txt'
+    snyk test timetable.app --json > results.json
+  displayName: 'Run container image scan'
 
-- task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: 'results.txt'
-    artifactName: 'scan-results'
-  displayName: 'Publish scan results as pipeline artifact'
-  
-- task: Docker@2
-  inputs:
-    containerRegistry: 'docker_sc'
-    repository: 'darksaber8888/timetable.app'
-    command: 'push'
-
-- task: Docker@2
-  inputs:
-    containerRegistry: 'dockerimage/v1'
-    command: 'run'
-    arguments: '-v $(Build.SourcesDirectory):/mnt dockerimage/v1 snyk test --all-projects'
-  displayName: 'Run Snyk scan on Docker image'
-
+# Step 7: Create and write results to file
+- script: |
+    cat results.json > results.txt
+  displayName: 'Write scan results to file'
 
 

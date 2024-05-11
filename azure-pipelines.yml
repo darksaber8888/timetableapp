@@ -41,10 +41,11 @@ stages:
     - task: SnykSecurityScan@1
       inputs:
         serviceConnectionEndpoint: 'snykToken'
-        testType: 'container'
-        dockerImageName: 'darksaber8888/timetable.app:v2'
-        monitorWhen: 'noIssuesFound'
-        failOnIssues: false
+        testType: 'app'
+        severityThreshold: 'medium'
+        failOnIssues: true
+        monitorWhen: 'always'
+
     - task: Docker@2
       displayName: Tag Docker image for ACR
       inputs:

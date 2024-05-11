@@ -8,7 +8,7 @@ variables:
   # Azure Container Registry connection established during pipeline creation
   dockerRegistryServiceConnection: 'acr-sc-token'
   # Docker Hub repository name
-  dockerHubRepository: 'darksaber8888/timetable.app:v2'
+  dockerHubRepository: 'darksaber8888/timetable.app'
   # ACR repository name
   acrRepository: 'timetableapp.azurecr.io/timetable.app:v2'
   # Snyk token
@@ -25,12 +25,18 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
-    - task: Docker@2
-      displayName: Pull Docker image from Docker Hub
+    - task: DockerInstaller@0
       inputs:
-        command: docker image pull timetable.app:v2
-        repository: $(dockerHubRepository)
-
+        dockerVersion: '17.09.0-ce'
+    
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'docker-sc'
+        command: 'login'
+    
+    - task: CmdLine@2
+      inputs:
+        script: 'docker image pull darksaber8888/timetable.app:v2'
 
     - task: SnykSecurityScan@1
       inputs:

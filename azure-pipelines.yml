@@ -13,7 +13,7 @@ variables:
   dockerRegistryServiceConnection: 'f3db38e0-002a-4025-b265-23473e5dff24'
   imageRepository: 'timetableapp'
   containerRegistry: 'timetableapp.azurecr.io'
-  dockerfilePath: '**/Dockerfile'
+  dockerfilePath: '/System.DefaultWorkingDirectory//timetableapp/Dockerfile'
   tag: '$(Build.BuildId)'
 
   # Agent VM image name
@@ -28,6 +28,12 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
+    - task: CmdLine@2
+      inputs:
+        script: |
+          echo  '$(System.DefaultWorkingDirectory)'
+          dir
+          dir subfoldername
     - task: Docker@2
       displayName: Build and push an image to container registry
       inputs:

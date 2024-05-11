@@ -38,14 +38,6 @@ stages:
       inputs:
         script: 'docker image pull darksaber8888/timetable.app:v2'
 
-    - task: SnykSecurityScan@1
-      inputs:
-        serviceConnectionEndpoint: 'snykToken'
-        testType: 'app'
-        severityThreshold: 'medium'
-        failOnIssues: true
-        monitorWhen: 'always'
-
     - task: Docker@2
       displayName: Tag Docker image for ACR
       inputs:

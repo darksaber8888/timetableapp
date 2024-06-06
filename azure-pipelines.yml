@@ -76,9 +76,9 @@ jobs:
       servicePrincipalKey: $(servicePrincipalKey)
 
   - script: |
-      docker tag <YourRepositoryName>:latest <YourACRName>.azurecr.io/<YourRepositoryName>:v1
+      docker tag <YourRepositoryName>:latest capstoneapp.azurecr.io/<YourRepositoryName>:v1
     displayName: 'Tag Docker Image'
 
   - script: |
-      docker push <YourACRName>.azurecr.io/<YourRepositoryName>:v1
+      docker push capstoneapp.azurecr.io/<YourRepositoryName>:v1
     displayName: 'Push Docker Image to ACR'

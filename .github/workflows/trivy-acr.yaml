@@ -42,15 +42,22 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
-      - name: Login via Azure CLI
+      - name: Tag image with ACR name
+        run: |
+          docker tag docker.io/revaorganization/timetableapp:${{ github.sha }} capstoneapp.azurecr.io/timetableapp:v1
+
+      - name: Login to Azure via CLI
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Build and push image to Azure Container Registry
+      - name: Login to ACR with admin credentials
         run: |
-          docker tag docker.io/revaorganization/timetableapp:${{ github.sha }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/timetableapp:${{ github.sha }}
-          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/timetableapp:${{ github.sha }}
+          az acr login --name capstoneapp --username ${{ secrets.REGISTRY_USERNAME }} --password ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push image to ACR
+        run: |
+          docker push capstoneapp.azurecr.io/timetableapp:v1
 
       - name: Logout from Azure
         run: |

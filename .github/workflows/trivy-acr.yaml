@@ -52,7 +52,7 @@ jobs:
 
       - name: Login to ACR with admin credentials
         run: |
-          az acr login --name capstoneapp --username ${{ secrets.REGISTRY_USERNAME }} --password ${{ secrets.REGISTRY_PASSWORD }}
+          az acr login --name capstoneapp --username ${{ secrets.ACR_USERNAME }} --password ${{ secrets.ACR_PASSWORD }}
 
       - name: Push image to ACR
         run: |

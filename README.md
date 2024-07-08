@@ -17,6 +17,6 @@
 ![image](https://github.com/darksaber8888/timtableapp/assets/165632097/cb70ae90-b734-44e9-a926-29c55da09c50)
 
 **Port Requirements:** 
-	* The application can be accessed via ClusterIP or ExternalIP Service on Port 5000. 
+	* The application can be accessed via ClusterIP or ExternalIP Service on Port 5000.
 
 			
